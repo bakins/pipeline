@@ -1,0 +1,14 @@
+steps:
+- name: foo
+  env:
+    GOPATH: ${GOPATH}
+  command: go
+  args:
+  - build
+  - .
+- type: docker
+  image: ubuntu
+  command: /bin/bash
+  args:
+  - -cex
+  - "echo ${HOME}"
