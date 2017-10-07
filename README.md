@@ -22,4 +22,4 @@ advanced use cases.
 
 ## LICENSE
 
-see [LICENCE(./LICENSE)]
+see [LICENCE](./LICENSE)
