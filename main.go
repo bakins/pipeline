@@ -93,8 +93,8 @@ func (s *Step) Execute(stdOut, stdErr io.Writer) error {
 	cmd := exec.Command(s.Command, s.Args...)
 	cmd.Env = makeEnv(s.Env)
 	//fmt.Println(cmd.Env)
-	//fmt.Println(s.Command)
-	//fmt.Println(s.Args)
+	fmt.Println(s.Command)
+	fmt.Println(s.Args)
 	cmd.Stdout = stdOut
 	cmd.Stderr = stdErr
 	return cmd.Run()

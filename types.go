@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/mitchellh/mapstructure"
 	"github.com/pkg/errors"
 )
@@ -60,14 +62,18 @@ func dockerParser(input map[string]interface{}) (*Step, error) {
 
 	s := &Step{
 		Command: "docker",
-		Env:     d.Env,
 	}
 	args := []string{"run",
 		"-t",
 		"--entrypoint=",
-		d.Image,
-		d.Command,
 	}
+
+	for k, v := range d.Env {
+		args = append(args, "-e", fmt.Sprintf("%q", k+"="+v))
+	}
+
+	args = append(args, d.Image, d.Command)
+
 	s.Args = append(args, d.Args...)
 	return s, nil
 }
