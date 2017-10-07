@@ -44,10 +44,8 @@ func stepParser(input map[string]interface{}) (*Step, error) {
 // docker
 
 type dockerStep struct {
-	Env     map[string]string
-	Image   string
-	Command string
-	Args    []string
+	Step
+	Image string
 }
 
 func dockerParser(input map[string]interface{}) (*Step, error) {
