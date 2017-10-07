@@ -8,6 +8,7 @@ steps:
   command: go
   args:
   - build
+  - -v
   - .
 - type: docker
   image: ubuntu
