@@ -47,19 +47,21 @@ func runRootCmd(cmd *cobra.Command, args []string) error {
 
 	for _, s := range p.Steps {
 		if err := s.Execute(stdOut, stdErr); err != nil {
-			return errors.Wrapf(err, "step %s failed", s.Name)
+			return errors.Wrapf(err, "step %s failed", s.name)
 		}
 	}
 	return nil
 }
 
 // Step is a single step
+// should there be an internal version of this?
 type Step struct {
-	Name    string            `json:"name"`
-	Type    string            `json:"type"`
-	Command string            `json:"command"`
-	Args    []string          `json:"args"`
-	Env     map[string]string `json:"env"`
+	Command    string            `json:"command"`
+	Args       []string          `json:"args"`
+	Env        map[string]string `json:"env"`
+	name       string
+	stepType   string
+	conditions map[string]string
 }
 
 // TODO: inject some standard environment vars?
@@ -74,6 +76,20 @@ func makeEnv(in map[string]string) []string {
 
 // Execute will run the step
 func (s *Step) Execute(stdOut, stdErr io.Writer) error {
+	// should have a seperate check/func for this
+	for k, v := range s.Env {
+		// do we care about empty vs not set?
+		val, ok := s.Env[k]
+		if !ok {
+			fmt.Printf("env var %s is not set", k)
+			return nil
+		}
+		if v != val {
+			fmt.Printf("env var %s: %q != %q", k, v, val)
+			return nil
+		}
+	}
+
 	cmd := exec.Command(s.Command, s.Args...)
 	cmd.Env = makeEnv(s.Env)
 	//fmt.Println(cmd.Env)
@@ -99,6 +115,26 @@ func getEnv() map[string]string {
 		}
 	}
 	return environ
+}
+
+func getConditions(input map[string]interface{}) (map[string]string, error) {
+	v, ok := input["when"]
+	if !ok {
+		return nil, nil
+	}
+	raw, ok := v.(map[string]interface{})
+	if !ok {
+		return nil, errors.New("invalid type for when")
+	}
+	when := map[string]string{}
+	for k, v := range raw {
+		val, ok := v.(string)
+		if !ok {
+			return nil, errors.Errorf("invalid type for key %s", k)
+		}
+		when[k] = val
+	}
+	return when, nil
 }
 
 type rawPipeline struct {
@@ -179,6 +215,12 @@ func loadPipelineFile(filename string) (*Pipeline, error) {
 		if t == "" {
 			t = "command"
 		}
+
+		w, err := getConditions(step)
+		if err != nil {
+			return nil, errors.Wrapf(err, "step %d: failed to get when", i)
+		}
+
 		parser := getParser(t)
 		if parser == nil {
 			return nil, errors.Wrapf(err, "step %d: unable to find parser for %s", i, t)
@@ -188,8 +230,9 @@ func loadPipelineFile(filename string) (*Pipeline, error) {
 			return nil, errors.Wrapf(err, "step %s: failed to parse", name)
 		}
 
-		s.Name = name
-		s.Type = t
+		s.name = name
+		s.stepType = t
+		s.conditions = w
 
 		p.Steps = append(p.Steps, *s)
 	}

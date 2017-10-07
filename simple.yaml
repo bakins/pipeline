@@ -2,6 +2,9 @@ steps:
 - name: foo
   env:
     GOPATH: ${GOPATH}
+    BUILD: "${BUILD:-false}"
+  when:
+    BUILD: "true"
   command: go
   args:
   - build
