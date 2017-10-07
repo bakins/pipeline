@@ -77,15 +77,15 @@ func makeEnv(in map[string]string) []string {
 // Execute will run the step
 func (s *Step) Execute(stdOut, stdErr io.Writer) error {
 	// should have a seperate check/func for this
-	for k, v := range s.Env {
+	for k, v := range s.conditions {
 		// do we care about empty vs not set?
 		val, ok := s.Env[k]
 		if !ok {
-			fmt.Printf("env var %s is not set", k)
+			fmt.Printf("env var %s is not set\n", k)
 			return nil
 		}
 		if v != val {
-			fmt.Printf("env var %s: %q != %q", k, v, val)
+			fmt.Printf("env var %s: %q != %q\n", k, v, val)
 			return nil
 		}
 	}
