@@ -16,11 +16,4 @@ steps:
   args:
   - -cex
   - "echo ${HOME}"
-- type: docker
-  image: ubuntu
-  env:
-    HOME: ${USER}
-  command: /bin/bash
-  args:
-  - -cex
-  - "echo \\\$HOME"
+
