@@ -44,7 +44,7 @@ func stepParser(input map[string]interface{}) (*Step, error) {
 // docker
 
 type dockerStep struct {
-	Step
+	Step  `mapstructure:",squash"`
 	Image string
 }
 

@@ -55,11 +55,11 @@ func runRootCmd(cmd *cobra.Command, args []string) error {
 
 // Step is a single step
 type Step struct {
-	Name    string
-	Type    string
-	Command string
-	Args    []string
-	Env     map[string]string
+	Name    string            `json:"name"`
+	Type    string            `json:"type"`
+	Command string            `json:"command"`
+	Args    []string          `json:"args"`
+	Env     map[string]string `json:"env"`
 }
 
 // TODO: inject some standard environment vars?
@@ -76,7 +76,9 @@ func makeEnv(in map[string]string) []string {
 func (s *Step) Execute(stdOut, stdErr io.Writer) error {
 	cmd := exec.Command(s.Command, s.Args...)
 	cmd.Env = makeEnv(s.Env)
-	fmt.Println(cmd.Env)
+	//fmt.Println(cmd.Env)
+	//fmt.Println(s.Command)
+	//fmt.Println(s.Args)
 	cmd.Stdout = stdOut
 	cmd.Stderr = stdErr
 	return cmd.Run()
